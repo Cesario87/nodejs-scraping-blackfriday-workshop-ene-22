@@ -14,16 +14,16 @@ const extractProductData = async (url,browser) => {
         // Utilizamos el método newPage.$eval(selector, function) y almacenamos en productData:
 
         /********** A RELLENAR todos los page.$eval(selector, function)  *********/
-        //titulo
-        //productData['name'] = await page.$eval(selector, function)
-        //precio
-        //productData['price'] = await page.$eval(selector, function)
-        //imagenes
-        //productData['img'] = await page.$eval(selector, function)
+        //titulo --> .productTitle
+        productData['name'] = await page.$eval(".productTitle", name => name.innerHTML)
+        //precio --> #normalpricenumber
+        productData['price'] = await page.$eval("#normalpricenumber", price => price.innerHTML)
+        //imagenes --> document.querySelector("#productmainimageitem").src
+        productData['img'] = await page.$eval("#productmainimageitem", img => img.src)
         //info
-        //productData['info'] = await page.$eval(selector, function)
+        productData['info'] = await page.$eval("div.productdetailinfocontainer.smoothshadow > h2", info => info.innerHTML)
         //descripción
-        //productData['description'] = await page.$eval(selector, description=>description.innerText.slice(0,200) + '...')
+        productData['description'] = await page.$eval('.productdetailinfocontainer', description=>description.innerText.slice(0,200) + '...')
         
         return productData // Devuelve los datos de un producto
     }
@@ -55,7 +55,8 @@ const scrap = async (url) => {
         // En este caso , en el CB filtramos el array de items, guardando en un nuevo array
 
         /********** A RELLENAR page.$eval(selector, function)  *********/
-        //const tmpurls = await page.$$eval(selector,funcion)
+        //Lista de nodos <a> --> hay que convertirlo a una lista de href, es decir array de links.
+        const tmpurls = await page.$$eval("div.productName > div > div > a",data => data.map(a=>a.href))
         
         //Quitamos los duplicados
         const urls = await tmpurls.filter((link,index) =>{ return tmpurls.indexOf(link) === index})
@@ -77,7 +78,7 @@ const scrap = async (url) => {
         }
         
         console.log(scrapedData, "Lo que devuelve mi función scraper", scrapedData.length) 
-       
+
         // cerramos el browser con el método browser.close
         await browser.close()
         // Devolvemos el array con los productos
